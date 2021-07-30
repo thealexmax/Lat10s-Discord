@@ -19,7 +19,7 @@
     {
 	    "token": "DISCORD_TOKEN",
 	    "ytapi": "YOUTUBE_TOKEN",
-	    "prefix": ".",
+	    "prefix": "."
 	}
 
  ## Commands

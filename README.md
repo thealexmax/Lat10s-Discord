@@ -31,6 +31,8 @@
  
  Play a saved Playlist: `.playlist <Playlist Name>`
  
+ Remove a saved playlist: `.playlist remove <Playlist Name>`
+ 
  Note: Playlists are not shared between servers
  
  Skip to the next song: `.skip`

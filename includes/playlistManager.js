@@ -1,26 +1,5 @@
-const Sequelize = require('sequelize');
-
 module.exports = {
-	async createPlaylist(serverID, userID, playlistName, playlistURL) {
-		const sequelize = new Sequelize('database', 'username', 'password', {
-			host: 'localhost',
-			dialect: 'sqlite',
-			logging: false,
-			storage: `./db/${serverID}.sqlite`,
-		});
-		const Playlists = sequelize.define('playlists', {
-			name: {
-				type: Sequelize.STRING,
-				unique: true,
-			},
-			url: Sequelize.TEXT,
-			username: Sequelize.STRING,
-			usage_count: {
-				type: Sequelize.INTEGER,
-				defaultValue: 0,
-				allowNull: false,
-			},
-		});
+	async createPlaylist(Playlists, userID, playlistName, playlistURL) {
 		await Playlists.sync();
 		try {
 			const playlist = await Playlists.create({
@@ -41,60 +20,26 @@ module.exports = {
 			}
 		}
 	},
-	async getPlaylist(serverID, playlistName) {
-		const sequelize = new Sequelize('database', 'username', 'password', {
-			host: 'localhost',
-			dialect: 'sqlite',
-			logging: false,
-			storage: `./db/${serverID}.sqlite`,
-		});
-		const Playlists = sequelize.define('playlists', {
-			name: {
-				type: Sequelize.STRING,
-				unique: true,
-			},
-			url: Sequelize.TEXT,
-			username: Sequelize.STRING,
-			usage_count: {
-				type: Sequelize.INTEGER,
-				defaultValue: 0,
-				allowNull: false,
-			},
-		});
+	async getPlaylist(Playlists, playlistName) {
 		await Playlists.sync();
 		const playlist = await Playlists.findOne({ where: { name: playlistName } });
 		if(playlist === null) {
 			return null;
 		}
-		return playlist.dataValues.url;
+		return playlist;
 	},
-	async removePlaylist(serverID, playlistName, userID, message) {
-		const sequelize = new Sequelize('database', 'username', 'password', {
-			host: 'localhost',
-			dialect: 'sqlite',
-			logging: false,
-			storage: `./db/${serverID}.sqlite`,
-		});
-		const Playlists = sequelize.define('playlists', {
-			name: {
-				type: Sequelize.STRING,
-				unique: true,
-			},
-			url: Sequelize.TEXT,
-			username: Sequelize.STRING,
-			usage_count: {
-				type: Sequelize.INTEGER,
-				defaultValue: 0,
-				allowNull: false,
-			},
-		});
+	async removePlaylist(Playlists, playlistName, userID, message) {
 		await Playlists.sync();
 		const playlist = await Playlists.findOne({ where: { name: playlistName } });
 		if(playlist === null) {
 			return message.reply('Playlist does not exist');
 		}
 		if(playlist.dataValues.username != userID) return message.reply('You are not the owner of the playlist');
-		const playlistRem = await Playlists.destroy({ where: { name: playlistName } });
+		await Playlists.destroy({ where: { name: playlistName } });
 		return message.reply('Playlist removed');
-	}
+	},
+	async editUsageCount(Playlists, playlistID, pastusagecount) {
+		await Playlists.sync();
+		await Playlists.update({ usage_count: pastusagecount+1 }, { where: { id: playlistID } });
+	},
 };

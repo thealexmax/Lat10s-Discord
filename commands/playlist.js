@@ -2,7 +2,9 @@ const playlistDB = require('../includes/playlistManager');
 const { play } = require('../includes/play');
 const config = require('../config.json');
 const ytapi = require('simple-youtube-api');
+const playlistManager = require('../includes/playlistManager');
 const Youtube = new ytapi(config.ytapi);
+const Sequelize = require('sequelize');
 
 module.exports = {
 	name: 'playlist',
@@ -11,11 +13,33 @@ module.exports = {
 		if(!message.member.voice.channelID) {
 			return message.reply('You are not in a voice channel');
 		}
+		if(message.guild.me.voice.channelID && !message.member.voice.channelID != message.guild.me.voice.channelID) {
+			return message.reply('We are not i the same voice channel');
+		}
+		const sequelize = new Sequelize('database', 'username', 'password', {
+			host: 'localhost',
+			dialect: 'sqlite',
+			logging: false,
+			storage: `./db/${message.guild.id}.sqlite`,
+		});
+		const Playlists = sequelize.define('playlists', {
+			name: {
+				type: Sequelize.STRING,
+				unique: true,
+			},
+			url: Sequelize.TEXT,
+			username: Sequelize.STRING,
+			usage_count: {
+				type: Sequelize.INTEGER,
+				defaultValue: 0,
+				allowNull: false,
+			},
+		});
 		if (args[0] == 'add') {
 			if(!args[2].match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/g)) {
 				return message.reply('I need you to provide me with a youtube playlist URL');
 			}
-			const playlist = await playlistDB.createPlaylist(message.guild.id, message.member.id, args[1], args[2]);
+			const playlist = await playlistDB.createPlaylist(Playlists, message.member.id, args[1], args[2]);
 			if(playlist === 0) {
 				return message.reply('Playlist added');
 			}
@@ -27,20 +51,20 @@ module.exports = {
 			}
 		}
 		else if(args[0] === 'remove') {
-			await playlistDB.removePlaylist(message.guild.id, args[1], message.member.id, message);
+			await playlistDB.removePlaylist(Playlists, args[1], message.member.id, message);
 			return;
 		}
-		const playlist = await playlistDB.getPlaylist(message.guild.id, args[0]);
-		console.log(playlist);
+		const playlist = await playlistDB.getPlaylist(Playlists, args[0]);
 		if(playlist === null) {
 			return message.reply('The playlist you are looking for does not exist');
 		}
-		const playlistInfo = await Youtube.getPlaylist(playlist);
+		const playlistInfo = await Youtube.getPlaylist(playlist.dataValues.url);
 		const videos = await playlistInfo.getVideos();
 		const playlistVideos = [];
 		videos.forEach(element => {
 			playlistVideos.push(element.url);
 		});
+		await playlistManager.editUsageCount(Playlists, playlist.dataValues.id, playlist.dataValues.usage_count);
 		if(!message.guild.me.voice.connection) {
 			message.client.queue.set(message.guild.id, [playlistVideos[0]]);
 			for(i = 1; i < playlistVideos.length; i++) {

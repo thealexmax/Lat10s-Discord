@@ -33,6 +33,10 @@
  
  Remove a saved playlist: `.playlist remove <Playlist Name>`
  
+ See top 10 playlists: `.playlist list`
+ 
+ Play a random playlist `.playlist Random`
+ 
  Note: Playlists are not shared between servers
  
  Skip to the next song: `.skip`

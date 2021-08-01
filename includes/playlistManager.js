@@ -42,4 +42,9 @@ module.exports = {
 		await Playlists.sync();
 		await Playlists.update({ usage_count: pastusagecount+1 }, { where: { id: playlistID } });
 	},
+	async topPlaylist(Playlists) {
+		await Playlists.sync();
+		const result = await Playlists.findAll({ order: [['usage_count', 'DESC']] });
+		return result;
+	}
 };

@@ -35,25 +35,51 @@ module.exports = {
 				allowNull: false,
 			},
 		});
-		if (args[0] == 'add') {
-			if(!args[2].match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/g)) {
-				return message.reply('I need you to provide me with a youtube playlist URL');
-			}
-			const playlist = await playlistDB.createPlaylist(Playlists, message.member.id, args[1], args[2]);
-			if(playlist === 0) {
-				return message.reply('Playlist added');
-			}
-			else if(playlist === 1) {
-				return message.reply('That playlist already exists');
-			}
-			else if(playlist === 2) {
-				return message.reply('Unknown error, please contact the bot admin');
-			}
+		switch (args[0]) {
+			case 'add':
+				if(args[1] === 'Random') {
+					return message.reply('You canot name a playlist "Random"');
+				}
+				if(!args[2]) {
+					return message.reply('You need to provide a Youtube URL');
+				}
+				if(!args[2].match(/^https?:\/\/(www.youtube.com|youtube.com)\/playlist(.*)$/g)) {
+					return message.reply('I need you to provide me with a youtube playlist URL');
+				}
+				const playlist = await playlistDB.createPlaylist(Playlists, message.member.id, args[1], args[2]);
+				if(playlist === 0) {
+					return message.reply('Playlist added');
+				}
+				else if(playlist === 1) {
+					return message.reply('That playlist already exists');
+				}
+				else if(playlist === 2) {
+					return message.reply('Unknown error, please contact the bot admin');
+				}
+				return;
+			case 'remove':
+				await playlistDB.removePlaylist(Playlists, args[1], message.member.id, message);
+				return;
+			case 'list':
+				const topPlaylists = await playlistDB.topPlaylist(Playlists);
+				message.channel.send('These are the most popular playlists (Ordered by play count): ');
+				for(i = 0; i < 10; i++) {
+					if(!topPlaylists[i]) {
+						break;
+					}
+					message.channel.send(`${i+1}. ${topPlaylists[i].dataValues.name} [Played: ${topPlaylists[i].dataValues.usage_count} times]`);
+				}
+				return;
+			case 'Random':
+				const tmpPlaylists = await playlistDB.topPlaylist(Playlists);
+				args[0] = tmpPlaylists[Math.floor(Math.random()*tmpPlaylists.length)].dataValues.name;
+				break;
+			default:
+				break;
 		}
-		else if(args[0] === 'remove') {
-			await playlistDB.removePlaylist(Playlists, args[1], message.member.id, message);
-			return;
-		}
+		/*
+		else if(args[0] === '') 
+		*/
 		const playlist = await playlistDB.getPlaylist(Playlists, args[0]);
 		if(playlist === null) {
 			return message.reply('The playlist you are looking for does not exist');

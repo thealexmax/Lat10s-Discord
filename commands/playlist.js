@@ -10,12 +10,6 @@ module.exports = {
 	name: 'playlist',
 	description: 'Saves/Plays a playlist',
 	async execute(message, args) {
-		if(!message.member.voice.channelID) {
-			return message.reply('You are not in a voice channel');
-		}
-		if(message.guild.me.voice.channelID && !message.member.voice.channelID != message.guild.me.voice.channelID) {
-			return message.reply('We are not i the same voice channel');
-		}
 		const sequelize = new Sequelize('database', 'username', 'password', {
 			host: 'localhost',
 			dialect: 'sqlite',
@@ -58,6 +52,10 @@ module.exports = {
 				}
 				return;
 			case 'remove':
+				let playlistCreator = await playlistDB.getPlaylist(Playlists, args[1]);
+				if(playlistCreator != message.member.id) {
+					return message.reply('Esa playlist no es de tu propiedad :/');
+				}
 				await playlistDB.removePlaylist(Playlists, args[1], message.member.id, message);
 				return;
 			case 'list':
@@ -80,6 +78,12 @@ module.exports = {
 		/*
 		else if(args[0] === '') 
 		*/
+		if(!message.member.voice.channelID) {
+			return message.reply('You are not in a voice channel');
+		}
+		if(message.guild.me.voice.channelID != message.member.voice.channelID) {
+			return message.reply('We are not in the same voice channel');
+		}
 		const playlist = await playlistDB.getPlaylist(Playlists, args[0]);
 		if(playlist === null) {
 			return message.reply('The playlist you are looking for does not exist');

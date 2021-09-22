@@ -7,7 +7,9 @@ module.exports = {
 		const dispatcher = connection.play(await ytdl(queue[0], { filter: 'audioonly', highWaterMark: 1 << 25 }), { type: 'opus' });
 		dispatcher.on('finish', () => {
 			console.log('Finished Playing');
-			queue.shift();
+			if(message.client.loop.get(message.guild.id) != true) {
+				queue.shift();
+			}
 			if(queue[0]) {
 				module.exports.play(message, connection);
 			}

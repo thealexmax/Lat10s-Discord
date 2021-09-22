@@ -16,6 +16,7 @@ client.once('ready', () => {
 });
 
 client.queue = new Map();
+client.loop = new Map();
 
 client.on('message', msg => {
 	if(!msg.content.startsWith(config.prefix) || msg.author.bot) return;

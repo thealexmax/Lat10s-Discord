@@ -32,9 +32,11 @@ module.exports = {
 		if(!message.guild.me.voice.connection) {
 			if(!playlistVideos[0]) {
 				message.client.queue.set(message.guild.id, [args[0]]);
+				message.client.loop.set(message.guild.id, false);
 			}
 			else {
 				message.client.queue.set(message.guild.id, [playlistVideos[0]]);
+				message.client.loop.set(message.guild.id, false);
 				// eslint-disable-next-line no-undef
 				for(i = 1; i < playlistVideos.length; i++) {
 					// eslint-disable-next-line no-undef

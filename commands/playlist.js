@@ -81,9 +81,6 @@ module.exports = {
 		if(!message.member.voice.channelID) {
 			return message.reply('You are not in a voice channel');
 		}
-		if(message.guild.me.voice.channelID != message.member.voice.channelID) {
-			return message.reply('We are not in the same voice channel');
-		}
 		const playlist = await playlistDB.getPlaylist(Playlists, args[0]);
 		if(playlist === null) {
 			return message.reply('The playlist you are looking for does not exist');
@@ -97,6 +94,7 @@ module.exports = {
 		await playlistManager.editUsageCount(Playlists, playlist.dataValues.id, playlist.dataValues.usage_count);
 		if(!message.guild.me.voice.connection) {
 			message.client.queue.set(message.guild.id, [playlistVideos[0]]);
+			message.client.loop.set(message.guild.id, false);
 			for(i = 1; i < playlistVideos.length; i++) {
 				message.client.queue.get(message.guild.id).push(playlistVideos[i]);
 			}
@@ -105,6 +103,9 @@ module.exports = {
 			return;
 		}
 		if(message.guild.me.voice.connection) {
+			if(message.guild.me.voice.channelID != message.member.voice.channelID) {
+				return message.reply('We are not in the same voice channel');
+			}
 			for(i = 0; i < playlistVideos.length; i++) {
 				message.client.queue.get(message.guild.id).push(playlistVideos[i]);
 			}

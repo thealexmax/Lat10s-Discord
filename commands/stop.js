@@ -13,6 +13,7 @@ module.exports = {
 		}
 		// Remove this if you want queue to persist
 		let queue = message.client.queue.get(message.guild.id);
+		message.client.loop.set(message.guild.id, false);
 		// eslint-disable-next-line no-unused-vars
 		queue = [];
 		message.guild.me.voice.channel.leave();

@@ -15,6 +15,7 @@ module.exports = {
 		const queue = message.client.queue.get(message.guild.id);
 		queue.shift();
 		if(!queue[0]) {
+			message.client.loop.set(message.guild.id, false);
 			console.log('queue[0] is null, leaving channel');
 			message.reply('Queue is empty, leaving voice channel');
 			message.guild.me.voice.channel.leave();

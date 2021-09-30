@@ -43,5 +43,7 @@
  
  Stop playing music: `.stop`
  
+ Loop song: `.loop`
+ 
  Search a pokemon in the Pokedex: `.pokedex <Pokemon Name/Random>`
  

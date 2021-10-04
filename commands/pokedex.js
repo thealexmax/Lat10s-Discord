@@ -5,6 +5,9 @@ module.exports = {
 	description: 'Pokedex command!',
 	async execute(message, args) {
 		args = args.join('-').toLowerCase();
+		if(!args[0]) {
+			return message.channel.send('No pokemon detected');
+		}
 		if(args === 'random') {
 			args = Math.floor((Math.random() * 898) + 1);
 		}

@@ -5,7 +5,6 @@ module.exports = {
 		if(!args[0]) {
 			return message.channel.send(`You rolled a: ${Math.floor(Math.random()*6+1)}`);
 		}
-		console.log(args);
 		let diceNumber = args[0].split("d");
 		const diceList = [];
 		let result = Math.floor(Math.random()*diceNumber[1]+1);

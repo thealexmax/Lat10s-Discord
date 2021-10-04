@@ -2,8 +2,7 @@ const ytdl = require('ytdl-core-discord');
 module.exports = {
 	async play(message, connection) {
 		let queue = message.client.queue.get(message.guild.id);
-		const info = await ytdl.getInfo(queue[0]);
-		message.channel.send(`Playing: ${info.videoDetails.title}`);
+		//message.channel.send(`Playing: ${info.videoDetails.title}`);
 		const dispatcher = connection.play(await ytdl(queue[0], { filter: 'audioonly', highWaterMark: 1 << 25 }), { type: 'opus' });
 		dispatcher.on('finish', () => {
 			console.log('Finished Playing');

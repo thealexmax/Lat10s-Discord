@@ -6,6 +6,19 @@ const playlistManager = require('../includes/playlistManager');
 const Youtube = new ytapi(config.ytapi);
 const Sequelize = require('sequelize');
 
+function shuffleArray(array) {
+	let currentIndex = array.length, randomIndex;
+	//Shuffle elements of the array while there are elements remaining
+	while(currentIndex != 0) {
+		//Pick an element
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex--;
+		//Swap elements
+		[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+	}
+	return array;
+}
+
 module.exports = {
 	name: 'playlist',
 	description: 'Saves/Plays a playlist',
@@ -87,10 +100,16 @@ module.exports = {
 		}
 		const playlistInfo = await Youtube.getPlaylist(playlist.dataValues.url);
 		const videos = await playlistInfo.getVideos();
-		const playlistVideos = [];
+		let playlistVideos = [];
 		videos.forEach(element => {
 			playlistVideos.push(element.url);
 		});
+		if(args[1]) {
+			if(args[1].toLowerCase() === "shuffle") {
+				//Shuffle playlistVideos
+				playlistVideos = shuffleArray(playlistVideos);
+			}
+		}
 		await playlistManager.editUsageCount(Playlists, playlist.dataValues.id, playlist.dataValues.usage_count);
 		if(!message.guild.me.voice.connection) {
 			message.client.queue.set(message.guild.id, [playlistVideos[0]]);
